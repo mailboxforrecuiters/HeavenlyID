@@ -1,0 +1,25 @@
+# Local secrets and credentials
+.env
+.env.*
+protected/pdo.php
+config/*.local.php
+
+# Logs/debug output
+*.log
+printer_email_debug.log
+card_status_request_email.log
+shopify_webhook_debug.log
+
+# Dependency/vendor folders
+vendor/
+node_modules/
+
+# Generated customer/card output
+created_cards/
+previews/
+print_files/
+exports/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
