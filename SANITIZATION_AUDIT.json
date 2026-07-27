@@ -1,0 +1,42 @@
+{
+  "repo": "mailboxforrecuiters/HeavenlyID",
+  "upload_datetime_pt": "2026-07-27 15:50 PT",
+  "sanitization_summary": {
+    "contact_send.php": "Hardcoded SMTP/password-like values removed; endpoint reads mail settings from environment variables.",
+    "login_user.php": "Hardcoded virtual test user and plaintext password removed; endpoint uses DB-backed password_verify login only.",
+    "schema_files": "Committed as schema-only files without customer/user INSERT rows.",
+    "env": "Committed .env.example only; real .env and protected/pdo.php are intentionally excluded."
+  },
+  "committed_files": [
+    ".env.example",
+    ".gitignore",
+    "WORKFLOW_FILE_TRACKER.md",
+    "bible_verse_search.php",
+    "contact_send.php",
+    "create_checkout.php",
+    "footer.php",
+    "list_cards.php",
+    "load_card.php",
+    "load_saved_card.php",
+    "login_user.php",
+    "logout.php",
+    "save_card.php",
+    "schema/card_designs_v2.schema.sql",
+    "schema/users.schema.sql"
+  ],
+  "manual_upload_required": [
+    "cardbuilder.php",
+    "card.js",
+    "card_designs_v2_lib.php",
+    "header.php",
+    "my_designs.php",
+    "bible_verse_references.json"
+  ],
+  "do_not_commit_publicly": [
+    "protected/pdo.php",
+    ".env",
+    "*.log",
+    "generated customer/card output",
+    "unreviewed binary font/image assets"
+  ]
+}
