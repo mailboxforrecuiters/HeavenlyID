@@ -194,8 +194,68 @@ if ($letterFull === "" || preg_match('/^I\s+' . preg_quote($fullName, '/') . '\s
     .letter-fixed-prefix strong{font-weight:800}
     .letter-body{display:inline;color:#223a71;font-family:"Bw Modelica Regular","Montserrat",Arial,sans-serif;font-size:24px;font-weight:400;line-height:1.42;text-align:left;white-space:normal;overflow:visible;word-spacing:2px;letter-spacing:.1px}
     .raw{white-space:pre-wrap;background:rgba(255,255,255,.56);border:1px solid rgba(216,174,85,.28);border-radius:16px;padding:12px;font-family:ui-monospace,Consolas,monospace;color:#1f2937;max-height:300px;overflow:auto}
-    @media(max-width:1100px){.views{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}.scaled{transform:scale(.5);margin-bottom:-330px}}
-    @media(max-width:640px){.meta{grid-template-columns:1fr}.scaled{transform:scale(.34);margin-bottom:-430px}.card-shell{padding:10px}}
+    .friendly-info{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+
+    .info-card{
+      background:rgba(255,255,255,.62);
+      border:1px solid rgba(216,174,85,.28);
+      border-radius:18px;
+      padding:16px;
+    }
+
+    .info-card h3{
+      margin:0 0 12px;
+      color:var(--blue);
+      font-size:24px;
+      line-height:1.05;
+    }
+
+    .detail-row{
+      display:grid;
+      grid-template-columns:150px minmax(0,1fr);
+      gap:10px;
+      padding:10px 0;
+      border-top:1px solid rgba(216,174,85,.22);
+    }
+
+    .detail-row:first-of-type{
+      border-top:0;
+    }
+
+    .detail-row span{
+      color:#6f5336;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    .detail-row strong{
+      color:#1d3468;
+      font-size:17px;
+      line-height:1.3;
+      word-break:break-word;
+    }
+
+    .detail-row a{
+      color:#1d3468;
+      text-decoration:underline;
+    }
+
+    .status-paid{
+      color:#0f7a3a !important;
+    }
+
+    .status-pending{
+      color:#a16207 !important;
+    }
+
+    @media(max-width:1100px){.views{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}.friendly-info{grid-template-columns:1fr}.scaled{transform:scale(.5);margin-bottom:-330px}}
+    @media(max-width:640px){.meta{grid-template-columns:1fr}.detail-row{grid-template-columns:1fr}.scaled{transform:scale(.34);margin-bottom:-430px}.card-shell{padding:10px}}
   
     /* Exact rebuild helpers from direct DB columns, with payload_json fallback */
     .front-info-rows{position:absolute;left:<?= hid_staff_h($infoLeft) ?>px;top:<?= hid_staff_h($rowsTop) ?>px;width:<?= hid_staff_h($infoWidth) ?>px;z-index:6;pointer-events:none}
@@ -316,8 +376,121 @@ if ($letterFull === "" || preg_match('/^I\s+' . preg_quote($fullName, '/') . '\s
   </section>
 
   <section class="panel">
-    <h2 style="margin-top:0;color:var(--blue)">Saved Database Information</h2>
-    <div class="raw"><?= hid_staff_h(json_encode($row, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?></div>
+    <h2 style="margin-top:0;color:var(--blue)">Customer &amp; Design Information</h2>
+
+    <div class="friendly-info">
+      <div class="info-card">
+        <h3>Customer</h3>
+
+        <div class="detail-row">
+          <span>Name</span>
+          <strong><?= hid_staff_h(trim((string)($row["first_name"] ?? "") . " " . (string)($row["last_name"] ?? "")) ?: "Not on file") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Email</span>
+          <strong>
+            <?php if (!empty($row["email"])): ?>
+              <a href="mailto:<?= hid_staff_h($row["email"]) ?>"><?= hid_staff_h($row["email"]) ?></a>
+            <?php else: ?>
+              Not on file
+            <?php endif; ?>
+          </strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Shipping Address</span>
+          <strong>
+            <?php if ($hasShipping): ?>
+              <?php if ($shipAddress !== ""): ?><?= hid_staff_h($shipAddress) ?><?php endif; ?>
+              <?php if ($shipLine2 !== ""): ?><br><?= hid_staff_h($shipLine2) ?><?php endif; ?>
+            <?php else: ?>
+              No shipping address on file
+            <?php endif; ?>
+          </strong>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Card Design</h3>
+
+        <div class="detail-row">
+          <span>Design Title</span>
+          <strong><?= hid_staff_h($row["design_title"] ?: "Untitled Design") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Card Name</span>
+          <strong><?= hid_staff_h($fullName ?: "Not entered") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Spiritual Gift</span>
+          <strong><?= hid_staff_h($spiritualGifts ?: "Not entered") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Received Jesus</span>
+          <strong><?= hid_staff_h($received ?: "Not entered") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Bible Verse</span>
+          <strong><?= hid_staff_h($verse ?: "Not entered") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Foreground</span>
+          <strong><?= hid_staff_h($row["foreground_file"] ?: "None") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Front Theme</span>
+          <strong><?= hid_staff_h($row["front_theme_file"] ?: "Not selected") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Back Theme</span>
+          <strong><?= hid_staff_h($row["back_theme_file"] ?: "Not selected") ?></strong>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Order Status</h3>
+
+        <div class="detail-row">
+          <span>Payment Status</span>
+          <strong class="<?= ((int)$row["is_paid"] === 1) ? "status-paid" : "status-pending" ?>">
+            <?= ((int)$row["is_paid"] === 1) ? "Paid" : "Pending Payment" ?>
+          </strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Paid At</span>
+          <strong><?= hid_staff_h($row["paid_at"] ?: "Not paid yet") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Shopify Order</span>
+          <strong><?= hid_staff_h($row["shopify_order_name"] ?: "Not available") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Download Token</span>
+          <strong><?= !empty($row["download_token"]) ? "Created" : "Not created yet" ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Created</span>
+          <strong><?= hid_staff_h($row["created_at"] ?: "Unknown") ?></strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Last Updated</span>
+          <strong><?= hid_staff_h($row["updated_at"] ?: $row["created_at"] ?: "Unknown") ?></strong>
+        </div>
+      </div>
+    </div>
   </section>
 </main>
 </body>
