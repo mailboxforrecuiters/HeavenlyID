@@ -139,6 +139,14 @@ if ($letterFull === "" || preg_match('/^I\s+' . preg_quote($fullName, '/') . '\s
   $letterBody = trim((string)$letterBody);
   if ($letterBody === "") $letterBody = $defaultLetterIntentBody;
 }
+
+$hidStaffExportTitle = trim((string)($row["design_title"] ?? ""));
+$hidStaffExportName = trim((string)($fullName ?: "heavenly-id-card"));
+$hidStaffExportFileBase = preg_replace('/[^A-Za-z0-9._-]+/', '-', strtolower(trim($hidStaffExportTitle . '-' . $hidStaffExportName)));
+$hidStaffExportFileBase = trim((string)$hidStaffExportFileBase, '-_.');
+if ($hidStaffExportFileBase === "") {
+  $hidStaffExportFileBase = "heavenly-id-design-" . (string)(int)$row["id"];
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -194,69 +202,23 @@ if ($letterFull === "" || preg_match('/^I\s+' . preg_quote($fullName, '/') . '\s
     .letter-fixed-prefix strong{font-weight:800}
     .letter-body{display:inline;color:#223a71;font-family:"Bw Modelica Regular","Montserrat",Arial,sans-serif;font-size:24px;font-weight:400;line-height:1.42;text-align:left;white-space:normal;overflow:visible;word-spacing:2px;letter-spacing:.1px}
     .raw{white-space:pre-wrap;background:rgba(255,255,255,.56);border:1px solid rgba(216,174,85,.28);border-radius:16px;padding:12px;font-family:ui-monospace,Consolas,monospace;color:#1f2937;max-height:300px;overflow:auto}
-    .friendly-info{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:16px;
-    }
+    .friendly-info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .info-card{background:rgba(255,255,255,.62);border:1px solid rgba(216,174,85,.28);border-radius:18px;padding:16px}
+    .info-card h3{margin:0 0 12px;color:var(--blue);font-size:24px;line-height:1.05}
+    .detail-row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid rgba(216,174,85,.22)}
+    .detail-row:first-of-type{border-top:0}
+    .detail-row span{color:#6f5336;font-size:13px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+    .detail-row strong{color:#1d3468;font-size:17px;line-height:1.3;word-break:break-word}
+    .detail-row a{color:#1d3468;text-decoration:underline}
+    .status-paid{color:#0f7a3a !important}
+    .status-pending{color:#a16207 !important}
+    .hid-export-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    .hid-export-actions .btn{border:0;cursor:pointer;font-family:"Minion Pro",Georgia,serif}
+    .hid-export-actions .hid-export-jpg{background:#5f452f}
+    .hid-export-hint{margin-top:8px;color:#6f5336;font-size:14px;font-weight:800;line-height:1.35}
+    @media(max-width:1100px){.views{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}.scaled{transform:scale(.5);margin-bottom:-330px}.friendly-info{grid-template-columns:1fr}}
+    @media(max-width:640px){.meta{grid-template-columns:1fr}.scaled{transform:scale(.34);margin-bottom:-430px}.card-shell{padding:10px}.detail-row{grid-template-columns:1fr}}
 
-    .info-card{
-      background:rgba(255,255,255,.62);
-      border:1px solid rgba(216,174,85,.28);
-      border-radius:18px;
-      padding:16px;
-    }
-
-    .info-card h3{
-      margin:0 0 12px;
-      color:var(--blue);
-      font-size:24px;
-      line-height:1.05;
-    }
-
-    .detail-row{
-      display:grid;
-      grid-template-columns:150px minmax(0,1fr);
-      gap:10px;
-      padding:10px 0;
-      border-top:1px solid rgba(216,174,85,.22);
-    }
-
-    .detail-row:first-of-type{
-      border-top:0;
-    }
-
-    .detail-row span{
-      color:#6f5336;
-      font-size:13px;
-      font-weight:900;
-      letter-spacing:.04em;
-      text-transform:uppercase;
-    }
-
-    .detail-row strong{
-      color:#1d3468;
-      font-size:17px;
-      line-height:1.3;
-      word-break:break-word;
-    }
-
-    .detail-row a{
-      color:#1d3468;
-      text-decoration:underline;
-    }
-
-    .status-paid{
-      color:#0f7a3a !important;
-    }
-
-    .status-pending{
-      color:#a16207 !important;
-    }
-
-    @media(max-width:1100px){.views{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}.friendly-info{grid-template-columns:1fr}.scaled{transform:scale(.5);margin-bottom:-330px}}
-    @media(max-width:640px){.meta{grid-template-columns:1fr}.detail-row{grid-template-columns:1fr}.scaled{transform:scale(.34);margin-bottom:-430px}.card-shell{padding:10px}}
-  
     /* Exact rebuild helpers from direct DB columns, with payload_json fallback */
     .front-info-rows{position:absolute;left:<?= hid_staff_h($infoLeft) ?>px;top:<?= hid_staff_h($rowsTop) ?>px;width:<?= hid_staff_h($infoWidth) ?>px;z-index:6;pointer-events:none}
     .name-layout-debug{display:none}
@@ -304,6 +266,14 @@ if ($letterFull === "" || preg_match('/^I\s+' . preg_quote($fullName, '/') . '\s
         <?php endif; ?>
       </div>
     </div>
+
+    <div class="hid-export-actions" aria-label="Design download actions">
+      <button type="button" class="btn hid-export-btn" data-hid-card-target="hidPrintFrontCard" data-hid-file-base="<?= hid_staff_h($hidStaffExportFileBase) ?>-front" data-hid-format="png">Download Front PNG</button>
+      <button type="button" class="btn hid-export-btn" data-hid-card-target="hidPrintBackCard" data-hid-file-base="<?= hid_staff_h($hidStaffExportFileBase) ?>-back" data-hid-format="png">Download Back PNG</button>
+      <button type="button" class="btn hid-export-btn hid-export-jpg" data-hid-card-target="hidPrintFrontCard" data-hid-file-base="<?= hid_staff_h($hidStaffExportFileBase) ?>-front" data-hid-format="jpg">Download Front JPG</button>
+      <button type="button" class="btn hid-export-btn hid-export-jpg" data-hid-card-target="hidPrintBackCard" data-hid-file-base="<?= hid_staff_h($hidStaffExportFileBase) ?>-back" data-hid-format="jpg">Download Back JPG</button>
+    </div>
+    <div class="hid-export-hint">PNG is best for printer review. JPG is smaller and compressed.</div>
   </section>
 
   <section class="views">
@@ -311,7 +281,7 @@ if ($letterFull === "" || preg_match('/^I\s+' . preg_quote($fullName, '/') . '\s
       <h2 class="card-title">Front Design</h2>
       <div class="scale-wrap">
         <div class="scaled">
-          <div class="card-wrapper">
+          <div id="hidPrintFrontCard" class="card-wrapper">
             <div class="card-face card-front">
               <?php if ($foregroundPath): ?>
                 <div class="foreground-section">
@@ -356,7 +326,7 @@ if ($letterFull === "" || preg_match('/^I\s+' . preg_quote($fullName, '/') . '\s
       <h2 class="card-title">Back Design</h2>
       <div class="scale-wrap">
         <div class="scaled">
-          <div class="card-wrapper">
+          <div id="hidPrintBackCard" class="card-wrapper">
             <div class="card-face card-back">
               <?php if ($backPath): ?>
                 <img class="back-bg" src="<?= hid_staff_h($backPath) ?>" alt="Back card">
@@ -402,7 +372,7 @@ if ($letterFull === "" || preg_match('/^I\s+' . preg_quote($fullName, '/') . '\s
           <span>Shipping Address</span>
           <strong>
             <?php if ($hasShipping): ?>
-              <?php if ($shipAddress !== ""): ?><?= hid_staff_h($shipAddress) ?><?php endif; ?>
+              <?= hid_staff_h($shipAddress) ?>
               <?php if ($shipLine2 !== ""): ?><br><?= hid_staff_h($shipLine2) ?><?php endif; ?>
             <?php else: ?>
               No shipping address on file
@@ -493,5 +463,107 @@ if ($letterFull === "" || preg_match('/^I\s+' . preg_quote($fullName, '/') . '\s
     </div>
   </section>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  async function hidWaitForCardAssets(){
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; } catch (hidFontError) {}
+    }
+
+    const hidImages = Array.from(document.images || []);
+    await Promise.all(hidImages.map(function(hidImg){
+      if (hidImg.complete) return Promise.resolve();
+      return new Promise(function(resolve){
+        hidImg.addEventListener("load", resolve, { once:true });
+        hidImg.addEventListener("error", resolve, { once:true });
+      });
+    }));
+  }
+
+  function hidCloneCardForCapture(hidCard){
+    const hidClone = hidCard.cloneNode(true);
+    const hidWrap = document.createElement("div");
+
+    hidWrap.style.position = "fixed";
+    hidWrap.style.left = "-99999px";
+    hidWrap.style.top = "0";
+    hidWrap.style.width = "1000px";
+    hidWrap.style.height = "655px";
+    hidWrap.style.overflow = "hidden";
+    hidWrap.style.background = "transparent";
+    hidWrap.style.zIndex = "-1";
+
+    hidClone.removeAttribute("id");
+    hidClone.style.transform = "none";
+    hidClone.style.width = "1000px";
+    hidClone.style.height = "655px";
+    hidClone.style.margin = "0";
+
+    hidWrap.appendChild(hidClone);
+    document.body.appendChild(hidWrap);
+
+    return { hidWrap: hidWrap, hidClone: hidClone };
+  }
+
+  async function hidDownloadCard(hidTargetId, hidBaseFilename, hidFormat){
+    const hidCard = document.getElementById(hidTargetId);
+    if (!hidCard) {
+      alert("Could not find the card preview to download.");
+      return;
+    }
+
+    if (typeof window.html2canvas !== "function") {
+      alert("The image export library did not load. Please refresh and try again.");
+      return;
+    }
+
+    await hidWaitForCardAssets();
+
+    const hidCapture = hidCloneCardForCapture(hidCard);
+
+    try {
+      const hidIsJpg = hidFormat === "jpg";
+      const hidCanvas = await window.html2canvas(hidCapture.hidClone, {
+        backgroundColor: hidIsJpg ? "#ffffff" : null,
+        scale: 4,
+        useCORS: true,
+        allowTaint: false,
+        width: 1000,
+        height: 655,
+        windowWidth: 1000,
+        windowHeight: 655,
+        scrollX: 0,
+        scrollY: 0
+      });
+
+      const hidLink = document.createElement("a");
+      const hidExt = hidIsJpg ? "jpg" : "png";
+      hidLink.download = hidBaseFilename + "." + hidExt;
+      hidLink.href = hidIsJpg ? hidCanvas.toDataURL("image/jpeg", 0.95) : hidCanvas.toDataURL("image/png");
+
+      document.body.appendChild(hidLink);
+      hidLink.click();
+      hidLink.remove();
+    } catch (hidExportError) {
+      console.error(hidExportError);
+      alert("The card image could not be generated. Please make sure all images and fonts are loaded.");
+    } finally {
+      hidCapture.hidWrap.remove();
+    }
+  }
+
+  document.querySelectorAll(".hid-export-btn").forEach(function(hidButton){
+    hidButton.addEventListener("click", function(){
+      const hidTarget = hidButton.getAttribute("data-hid-card-target") || "";
+      const hidFilename = hidButton.getAttribute("data-hid-file-base") || "heavenly-id-card";
+      const hidFormat = hidButton.getAttribute("data-hid-format") === "jpg" ? "jpg" : "png";
+      hidDownloadCard(hidTarget, hidFilename, hidFormat);
+    });
+  });
+})();
+</script>
 </body>
 </html>
