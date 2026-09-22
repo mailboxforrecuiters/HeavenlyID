@@ -370,7 +370,7 @@ function hh_active(string $key, string $active): string {
 
     .hh-nav-inner{
       display:grid;
-      grid-template-columns:minmax(88px, 1fr) minmax(0, auto) minmax(64px, 1fr);
+      grid-template-columns:minmax(88px, 1fr) minmax(64px, auto);
       justify-content:stretch;
       align-items:center;
       gap:10px;
@@ -426,12 +426,11 @@ function hh_active(string $key, string $active): string {
   }
 
   .hh-mobile-user{
-      display:flex;
-      grid-column:2;
+      display:none !important;
     }
 
     .hh-burger{
-      grid-column:3;
+      grid-column:2;
       justify-self:end;
     }
 
