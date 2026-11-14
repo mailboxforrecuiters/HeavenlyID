@@ -1,0 +1,18 @@
+{
+  "_comment": "Checkout routing only. Storefront token is public-facing; never put Admin API credentials or webhook signing secrets here.",
+  "active_store": "dev",
+  "stores": {
+    "dev": {
+      "domain": "heavenly-id-checkout.myshopify.com",
+      "storefrontAccessToken": "",
+      "apiVersion": "2026-01",
+      "productId": "14870420685165"
+    },
+    "live": {
+      "domain": "",
+      "storefrontAccessToken": "",
+      "apiVersion": "2026-01",
+      "productId": ""
+    }
+  }
+}
