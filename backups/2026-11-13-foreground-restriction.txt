@@ -1,0 +1,63 @@
+# Heavenly ID production-based foreground restriction backup
+# 2026-11-13
+# Source: heavenly-id-foreground-restriction-1.zip
+# Applies to the newer production-based files, NOT automatically to the older Sep 2026 main files.
+#
+# Rule: foreground2.png is permitted only with heavenly_id_pink_front.png.
+# Beige and blue use foreground1.png; pink may use either. Matching back themes unchanged.
+# Changed files: cardbuilder.php and card.js.
+#
+# cardbuilder.php changes:
+# 1. Inside applyTheme, immediately after:
+#      opt.classList.add('active');
+#    add:
+#      document.dispatchEvent(new CustomEvent('cb:front-theme-changed'));
+#
+# 2. In initForegroundCarousel, retain original image list as allImages
+#    and filter using the selected front theme. On theme changes, preserve
+#    the current foreground if allowed, otherwise reset to the first allowed image.
+#    Keep foregroundPath and foregroundFileName synchronized:
+#
+#      var allImages = Array.isArray(window.CB_FOREGROUND_IMAGES) ? window.CB_FOREGROUND_IMAGES : [];
+#      var frontField = document.getElementById('cardFrontPath');
+#      var filenameField = document.getElementById('foregroundFileName');
+#      var images = [];
+#
+#      function fileName(path) {
+#        return String(path || '').split('/').pop().toLowerCase();
+#      }
+#      function isPink() {
+#        return fileName(frontField && frontField.value) === 'heavenly_id_pink_front.png';
+#      }
+#      function allowedImages() {
+#        return allImages.filter(function (path) {
+#          return fileName(path) !== 'foreground2.png' || isPink();
+#        });
+#      }
+#      function syncForTheme() {
+#        var selected = fileName((pathField && pathField.value) || img.getAttribute('src'));
+#        images = allowedImages();
+#        var matched = images.findIndex(function (path) {
+#          return fileName(path) === selected;
+#        });
+#        index = matched >= 0 ? matched : 0;
+#        render();
+#      }
+#
+#    render() also writes filenameField when populated, clears it when empty.
+#    Replace the final render() initialization with:
+#
+#      document.addEventListener('cb:front-theme-changed', syncForTheme);
+#      window.CB_syncForegroundForTheme = syncForTheme;
+#      syncForTheme();
+#
+# card.js change:
+# Immediately after:
+#      setActiveThemeByFile(frontFile);
+# add:
+#      if (typeof window.CB_syncForegroundForTheme === "function") {
+#        window.CB_syncForegroundForTheme();
+#      }
+#
+# This backup records the changes as a migration note rather than replacing
+# the older main-branch files with newer production-based full files.
